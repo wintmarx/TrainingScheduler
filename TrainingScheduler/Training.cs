@@ -6,11 +6,13 @@ using System.Threading.Tasks;
 
 namespace TrainingScheduler
 {
-    class Training
+    public class Training
     {
         public long id;
         public User coach;
+        public string name;
         public List<User> trainees;
         public DateTime date;
+        public bool isDeleted = false;
     }
 }

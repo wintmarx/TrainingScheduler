@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
@@ -11,18 +12,21 @@ namespace TrainingScheduler
 {
     public partial class CalendarForm : Form
     {
-        User user;
-        DateTime date;  
+        private User user;
+        private DateTime date;  
         const int daysInWeek = 7;
         const int hoursInDay = 13;
         const int startHour = 9;
+        private Dictionary<DateTime, Training> localTrainings;
         public CalendarForm(User user)
         {
-            this.user = user;
             InitializeComponent();
+            localTrainings = new Dictionary<DateTime, Training>();
+            this.user = user;
             calendar.CellBorderStyle = TableLayoutPanelCellBorderStyle.Single;
             date = DateTime.Now;
             date = date.AddDays(-DayOfWeekToNumber(date.DayOfWeek));
+            date = date.AddHours(-date.Hour);
             UpdateCurMonthLabel();
             GenCalendar();
         }
@@ -95,9 +99,39 @@ namespace TrainingScheduler
                     btn.FlatStyle = FlatStyle.Flat;
                     btn.TextAlign = ContentAlignment.MiddleCenter;
                     btn.Font = new Font(btn.Font.FontFamily, 9, FontStyle.Bold);
-                    btn.AutoSize = true;
+                    btn.FlatAppearance.BorderSize = 0;
+                    btn.Click += Cell_Click;
                     calendar.Controls.Add(btn, day + 1, hour + 1);
                 }
+            }
+        }
+
+        private void Cell_Click(object sender, EventArgs e)
+        {          
+            TableLayoutPanelCellPosition cell = calendar.GetPositionFromControl((Control)sender);
+            if (cell.Column == 0 && cell.Row == 0)
+            {
+                return;
+            }
+            Training training;
+            if (((Button)sender).Text == "")
+            {
+                if (!user.isCoach)
+                {
+                    return;
+                }
+                training = new Training();
+                training.date = date.AddDays(cell.Column - 1);
+            }
+            else
+            {
+                localTrainings.TryGetValue(date.AddDays(cell.Column - 1), out training);
+            }
+            Debug.WriteLine("{0}:{1}", cell.Row, cell.Column);
+            TrainingDetailsForm details = new TrainingDetailsForm(user, training);
+            if (details.ShowDialog() == DialogResult.OK)
+            {
+                localTrainings.Add(training.date, training);
             }
         }
 

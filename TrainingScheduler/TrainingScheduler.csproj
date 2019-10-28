@@ -110,6 +110,12 @@
       <DependentUpon>SignupForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Training.cs" />
+    <Compile Include="TrainingDetailsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="TrainingDetailsForm.Designer.cs">
+      <DependentUpon>TrainingDetailsForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="TrainingsDatabase.cs" />
     <Compile Include="User.cs" />
     <EmbeddedResource Include="CalendarForm.resx">
@@ -129,6 +135,9 @@
     </Compile>
     <EmbeddedResource Include="SignupForm.resx">
       <DependentUpon>SignupForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="TrainingDetailsForm.resx">
+      <DependentUpon>TrainingDetailsForm.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">

@@ -15,7 +15,7 @@ namespace TrainingScheduler
             Application.SetCompatibleTextRenderingDefault(false);
 
             User user = new User();
-
+            user.isCoach = true;
             /*LoginForm loginForm = new LoginForm(user);
             
             if (loginForm.ShowDialog() == DialogResult.OK)

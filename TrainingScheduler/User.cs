@@ -2,6 +2,7 @@
 {
     public class User
     {
+        public long id;
         public string firstName;
         public string secondName;
         public string login;
