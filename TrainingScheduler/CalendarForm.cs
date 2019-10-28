@@ -13,7 +13,8 @@ namespace TrainingScheduler
     public partial class CalendarForm : Form
     {
         private User user;
-        private DateTime date;  
+        private DateTime date;
+        private DateTime oldestDate;
         const int daysInWeek = 7;
         const int hoursInDay = 13;
         const int startHour = 9;
@@ -24,31 +25,30 @@ namespace TrainingScheduler
             localTrainings = new Dictionary<DateTime, Training>();
             this.user = user;
             calendar.CellBorderStyle = TableLayoutPanelCellBorderStyle.Single;
-            date = DateTime.Now;
-            date = date.AddDays(-DayOfWeekToNumber(date.DayOfWeek));
-            date = date.AddHours(-date.Hour);
+            date = DateTime.Today.AddDays(-DayOfWeekToNumber(DateTime.Today.DayOfWeek));
+            oldestDate = date;
             UpdateCurMonthLabel();
             GenCalendar();
         }
 
         private void UpdateCalendar()
         {
-            /*DateTime calDate = new DateTime(date.Year, date.Month, 1);
-            calDate = calDate.AddDays(-DayOfWeekToNumber(calDate.DayOfWeek));
-            for (int i = daysInWeek; i < calendar.Controls.Count; i++)
+            for (int i = daysInWeek + hoursInDay; i < calendar.Controls.Count; i++)
             {
-                calendar.Controls[i].Text = calDate.Day.ToString();
-                
-                if (calDate.Month != date.Month)
+                Button btn = (Button)calendar.Controls[i];
+                TableLayoutPanelCellPosition cell = calendar.GetPositionFromControl(btn);
+                Training training;
+                bool success = localTrainings.TryGetValue(date.AddDays(cell.Column - 1).AddHours(cell.Row - 1 + startHour), out training);
+
+                if (success)
                 {
-                    calendar.Controls[i].BackColor = Color.LightGray;
+                    AddTrainingToCell(btn, training);
                 }
                 else
                 {
-                    calendar.Controls[i].BackColor = SystemColors.Window;
+                    ClearCell(btn);
                 }
-                calDate = calDate.AddDays(1);
-            }*/
+            }
         }
 
         private DayOfWeek NumberToDayOfWeek(int number)
@@ -98,7 +98,7 @@ namespace TrainingScheduler
                     btn.Margin = new Padding(0);
                     btn.FlatStyle = FlatStyle.Flat;
                     btn.TextAlign = ContentAlignment.MiddleCenter;
-                    btn.Font = new Font(btn.Font.FontFamily, 9, FontStyle.Bold);
+                    //btn.Font = new Font(btn.Font.FontFamily, 9, FontStyle.Bold);
                     btn.FlatAppearance.BorderSize = 0;
                     btn.Click += Cell_Click;
                     calendar.Controls.Add(btn, day + 1, hour + 1);
@@ -114,29 +114,48 @@ namespace TrainingScheduler
                 return;
             }
             Training training;
-            if (((Button)sender).Text == "")
+            TrainingDetailsMode mode = TrainingDetailsMode.View;
+            Button btn = (Button)sender;
+            if (btn.Text == "")
             {
                 if (!user.isCoach)
                 {
                     return;
                 }
                 training = new Training();
-                training.date = date.AddDays(cell.Column - 1);
+                mode = TrainingDetailsMode.New;
+                training.coach = user;
+                training.date = date.AddDays(cell.Column - 1).AddHours(cell.Row - 1 + startHour);
             }
             else
             {
-                localTrainings.TryGetValue(date.AddDays(cell.Column - 1), out training);
+                localTrainings.TryGetValue(date.AddDays(cell.Column - 1).AddHours(cell.Row - 1 + startHour), out training);
+                if (user.id == training.coach.id)
+                {
+                    mode = TrainingDetailsMode.Edit;
+                }
             }
-            Debug.WriteLine("{0}:{1}", cell.Row, cell.Column);
-            TrainingDetailsForm details = new TrainingDetailsForm(user, training);
-            if (details.ShowDialog() == DialogResult.OK)
+            Debug.WriteLine("{0}:{1}, mode {2}", cell.Row, cell.Column, mode);
+            TrainingDetailsForm details = new TrainingDetailsForm(user, training, mode);
+            DialogResult result = details.ShowDialog();
+            if (result == DialogResult.OK)
             {
                 localTrainings.Add(training.date, training);
+                AddTrainingToCell(btn, training);
+            }
+            else if (result == DialogResult.Ignore)
+            {
+                localTrainings.Remove(training.date);
+                ClearCell(btn);
             }
         }
 
         private void nextWeekBtn_Click(object sender, EventArgs e)
         {
+            /*if (DateTime.Compare(oldestDate.AddDays(7), date) <= 0)
+            {
+                return;
+            }*/
             date = date.AddDays(7);
             UpdateCurMonthLabel();
             UpdateCalendar();
@@ -144,6 +163,10 @@ namespace TrainingScheduler
 
         private void prevWeekBtn_Click(object sender, EventArgs e)
         {
+            if (DateTime.Compare(oldestDate.AddDays(7), date) > 0)
+            {
+                return;
+            }
             date = date.AddDays(-7);
             UpdateCurMonthLabel();
             UpdateCalendar();
@@ -152,6 +175,18 @@ namespace TrainingScheduler
         private void UpdateCurMonthLabel()
         {
             curMonthLabel.Text = date.ToString("dd.MM.yyyy") + date.AddDays(6).ToString(" -\ndd.MM.yyyy");
+        }
+
+        private void AddTrainingToCell(Button cell, Training training)
+        {
+            cell.BackColor = Color.LightGreen;
+            cell.Text = training.name + "\n" + training.coach.firstName + " " + training.coach.secondName;
+        }
+
+        private void ClearCell(Button cell)
+        {
+            cell.BackColor = SystemColors.Window;
+            cell.Text = "";
         }
     }
 }

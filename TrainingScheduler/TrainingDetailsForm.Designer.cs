@@ -31,10 +31,11 @@
             this.addTrainingBtn = new System.Windows.Forms.Button();
             this.nameLabel = new System.Windows.Forms.Label();
             this.nameEdit = new System.Windows.Forms.TextBox();
-            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.coachEdit = new System.Windows.Forms.TextBox();
             this.coachLabel = new System.Windows.Forms.Label();
             this.traineesList = new System.Windows.Forms.ListBox();
             this.traineesLabel = new System.Windows.Forms.Label();
+            this.okBtn = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // addTrainingBtn
@@ -46,6 +47,7 @@
             this.addTrainingBtn.TabIndex = 0;
             this.addTrainingBtn.Text = "Создать\r\nтренировку\r\n\r\n";
             this.addTrainingBtn.UseVisualStyleBackColor = true;
+            this.addTrainingBtn.Click += new System.EventHandler(this.addTrainingBtn_Click);
             // 
             // nameLabel
             // 
@@ -64,13 +66,13 @@
             this.nameEdit.Size = new System.Drawing.Size(313, 20);
             this.nameEdit.TabIndex = 2;
             // 
-            // textBox1
+            // coachEdit
             // 
-            this.textBox1.Enabled = false;
-            this.textBox1.Location = new System.Drawing.Point(12, 82);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(313, 20);
-            this.textBox1.TabIndex = 4;
+            this.coachEdit.Enabled = false;
+            this.coachEdit.Location = new System.Drawing.Point(12, 82);
+            this.coachEdit.Name = "coachEdit";
+            this.coachEdit.Size = new System.Drawing.Size(313, 20);
+            this.coachEdit.TabIndex = 4;
             // 
             // coachLabel
             // 
@@ -98,14 +100,26 @@
             this.traineesLabel.TabIndex = 6;
             this.traineesLabel.Text = "Участники";
             // 
+            // okBtn
+            // 
+            this.okBtn.AutoSize = true;
+            this.okBtn.Location = new System.Drawing.Point(128, 304);
+            this.okBtn.Name = "okBtn";
+            this.okBtn.Size = new System.Drawing.Size(75, 31);
+            this.okBtn.TabIndex = 7;
+            this.okBtn.Text = "Удалить";
+            this.okBtn.UseVisualStyleBackColor = true;
+            this.okBtn.Click += new System.EventHandler(this.okBtn_Click);
+            // 
             // TrainingDetailsForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(337, 356);
+            this.Controls.Add(this.okBtn);
             this.Controls.Add(this.traineesLabel);
             this.Controls.Add(this.traineesList);
-            this.Controls.Add(this.textBox1);
+            this.Controls.Add(this.coachEdit);
             this.Controls.Add(this.coachLabel);
             this.Controls.Add(this.nameEdit);
             this.Controls.Add(this.nameLabel);
@@ -126,9 +140,10 @@
         private System.Windows.Forms.Button addTrainingBtn;
         private System.Windows.Forms.Label nameLabel;
         private System.Windows.Forms.TextBox nameEdit;
-        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.TextBox coachEdit;
         private System.Windows.Forms.Label coachLabel;
         private System.Windows.Forms.ListBox traineesList;
         private System.Windows.Forms.Label traineesLabel;
+        private System.Windows.Forms.Button okBtn;
     }
 }

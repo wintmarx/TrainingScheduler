@@ -11,7 +11,7 @@ namespace TrainingScheduler
         public long id;
         public User coach;
         public string name;
-        public List<User> trainees;
+        public List<User> trainees = new List<User>();
         public DateTime date;
         public bool isDeleted = false;
     }

@@ -16,6 +16,9 @@ namespace TrainingScheduler
 
             User user = new User();
             user.isCoach = true;
+            user.firstName = "Test";
+            user.secondName = "Second";
+            user.id = 0;
             /*LoginForm loginForm = new LoginForm(user);
             
             if (loginForm.ShowDialog() == DialogResult.OK)
