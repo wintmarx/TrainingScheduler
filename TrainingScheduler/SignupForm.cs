@@ -26,7 +26,6 @@ namespace TrainingScheduler
             user.firstName = nameBox.Text;
             user.secondName = surnameBox.Text;
             user.login = loginBox.Text;
-            user.pswd = pswdBox.Text;
             user.coachCode = coachCodeBox.Text;
 
             foreach (Control item in Controls)
@@ -35,7 +34,7 @@ namespace TrainingScheduler
             }
 
             Cursor = Cursors.WaitCursor;
-            SignupResult result = await db.Signup(user);
+            SignupResult result = await db.Signup(user, pswdBox.Text);
             Cursor = Cursors.Default;
 
             foreach (Control item in Controls)

@@ -18,14 +18,18 @@ namespace TrainingScheduler
 
         private async void loginButton_ClickAsync(object sender, EventArgs e)
         {
+            if (passBox.Text.Length == 0 ||
+                loginBox.Text.Length == 0)
+            {
+                MessageBox.Show("Введите логин и пароль");
+            }
             user.login = loginBox.Text;
-            user.pswd = passBox.Text;
             loginButton.Enabled = false;
             singupBtn.Enabled = false;
             loginBox.Enabled = false;
             passBox.Enabled = false;
             Cursor = Cursors.WaitCursor;
-            bool success = await db.Login(user);
+            bool success = await db.Login(user, passBox.Text);
             Cursor = Cursors.Default;
             loginButton.Enabled = true;
             singupBtn.Enabled = true;
@@ -33,9 +37,8 @@ namespace TrainingScheduler
             passBox.Enabled = true;
             if (success)
             {
-                Debug.WriteLine($"Login successfull login: {user.login}, pass: {user.pswd}");
+                Debug.WriteLine($"Login successfull login: {user.login}, pass: {passBox.Text}");
                 user.login = "";
-                user.pswd = "";
                 DialogResult = DialogResult.OK;       
                 Close();
                 return;

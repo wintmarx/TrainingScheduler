@@ -21,7 +21,8 @@ namespace TrainingScheduler
         User user;
         Training training;
         TrainingDetailsMode mode;
-        public TrainingDetailsForm(User user, Training training, TrainingDetailsMode mode)
+        bool subscribed = false;
+        public TrainingDetailsForm(User user, List<User> users, Training training, TrainingDetailsMode mode)
         {
             InitializeComponent();
             this.user = user;
@@ -34,18 +35,31 @@ namespace TrainingScheduler
                     //nameEdit.Enabled = true;
                     nameEdit.Text = training.name;
                     addTrainingBtn.Visible = false;
+                    subBtn.Visible = false;
                     break;
                 case TrainingDetailsMode.New:
                     nameEdit.Enabled = true;
                     okBtn.Visible = false;
+                    subBtn.Visible = false;
                     break;
                 case TrainingDetailsMode.View:
                     addTrainingBtn.Visible = false;
                     nameEdit.Text = training.name;
                     okBtn.Visible = false;
+                    subscribed = training.traineesId.FindIndex(x => x == user.id) >= 0;
+                    if (subscribed)
+                    {
+                        subBtn.Text = "Отписаться";
+                    }
                     break;
             }
-            coachEdit.Text = training.coach.firstName + " " + training.coach.secondName;
+            User coach = users[(int)training.coachId - 1];
+            for (int i = 0; i < training.traineesId.Count; i++)
+            {
+                User usr = users[(int)training.traineesId[i] - 1];
+                traineesList.Items.Add(usr.firstName + " " + usr.secondName);
+            }
+            coachEdit.Text = coach.firstName + " " + coach.secondName;
         }
 
         private void addTrainingBtn_Click(object sender, EventArgs e)
@@ -55,15 +69,26 @@ namespace TrainingScheduler
                 MessageBox.Show("Введите название тренировки");
                 return;
             }
-            training.name = nameEdit.Text;
             DialogResult = DialogResult.OK;
             Close();
         }
 
         private void okBtn_Click(object sender, EventArgs e)
         {
-            training.isDeleted = true;
             DialogResult = DialogResult.Ignore;
+            Close();
+        }
+
+        private void subBtn_Click(object sender, EventArgs e)
+        {
+            if (subscribed)
+            {
+                DialogResult = DialogResult.Yes;
+            }
+            else
+            {
+                DialogResult = DialogResult.No;
+            }
             Close();
         }
     }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dropbox.Api;
@@ -18,17 +19,65 @@ namespace TrainingScheduler
         const int daysInWeek = 7;
         const int hoursInDay = 13;
         const int startHour = 9;
-        private Dictionary<DateTime, Training> localTrainings;
+        private List<User> users;
+        private List<Training> localTrainings;
+        private Thread usersUpdateThread;
+        private bool shouldRunUsersUpdateThread;
+        private Thread trainingsUpdateThread;
+        private bool shouldRunTrainingsUpdateThread;
+        TrainingsDatabase trainingsDatabase;
+        LoginDatabase loginDatabase;
+        Semaphore trainingsMutex;
         public CalendarForm(User user)
         {
             InitializeComponent();
-            localTrainings = new Dictionary<DateTime, Training>();
+            trainingsMutex = new Semaphore(1, 1);
+            users = new List<User>();
+            localTrainings = new List<Training>();
             this.user = user;
             calendar.CellBorderStyle = TableLayoutPanelCellBorderStyle.Single;
             date = DateTime.Today.AddDays(-DayOfWeekToNumber(DateTime.Today.DayOfWeek));
             oldestDate = date;
             UpdateCurMonthLabel();
             GenCalendar();
+            trainingsDatabase = new TrainingsDatabase();
+            loginDatabase = new LoginDatabase();
+        }
+
+        private async void UsersUpdateThreadFunc()
+        {
+            while (shouldRunUsersUpdateThread)
+            {
+                await loginDatabase.FetchAllUsers(users);
+                Thread.Sleep(30000);
+            }
+        }
+
+        private async void TrainingsUpdateThreadFunc()
+        {
+            while (shouldRunTrainingsUpdateThread)
+            {           
+                await trainingsDatabase.SyncTrainings(user, localTrainings, trainingsMutex);
+                Action action = () => UpdateCalendar();
+                if(!IsDisposed)
+                {
+                    Invoke(action);
+                }
+                Thread.Sleep(15000);
+            }
+        }
+
+        public async Task Init()
+        {
+            await loginDatabase.FetchAllUsers(users);
+            await trainingsDatabase.Create();
+            await trainingsDatabase.SyncTrainings(user, localTrainings, trainingsMutex);
+            usersUpdateThread = new Thread(UsersUpdateThreadFunc);
+            shouldRunUsersUpdateThread = true;
+            usersUpdateThread.Start();
+            trainingsUpdateThread = new Thread(TrainingsUpdateThreadFunc);
+            shouldRunTrainingsUpdateThread = true;
+            trainingsUpdateThread.Start();
         }
 
         private void UpdateCalendar()
@@ -37,10 +86,11 @@ namespace TrainingScheduler
             {
                 Button btn = (Button)calendar.Controls[i];
                 TableLayoutPanelCellPosition cell = calendar.GetPositionFromControl(btn);
-                Training training;
-                bool success = localTrainings.TryGetValue(date.AddDays(cell.Column - 1).AddHours(cell.Row - 1 + startHour), out training);
+                Training training = localTrainings.Find(t => 
+                    DateTime.Compare(t.date, date.AddDays(cell.Column - 1).AddHours(cell.Row - 1 + startHour)) == 0
+                    && t.syncState != SyncState.Deleted);
 
-                if (success)
+                if (training != null)
                 {
                     AddTrainingToCell(btn, training);
                 }
@@ -124,30 +174,53 @@ namespace TrainingScheduler
                 }
                 training = new Training();
                 mode = TrainingDetailsMode.New;
-                training.coach = user;
+                training.coachId = user.id;
                 training.date = date.AddDays(cell.Column - 1).AddHours(cell.Row - 1 + startHour);
             }
             else
             {
-                localTrainings.TryGetValue(date.AddDays(cell.Column - 1).AddHours(cell.Row - 1 + startHour), out training);
-                if (user.id == training.coach.id)
+                training = localTrainings.Find(t =>
+                    DateTime.Compare(t.date, date.AddDays(cell.Column - 1).AddHours(cell.Row - 1 + startHour)) == 0
+                    && t.syncState != SyncState.Deleted);
+                if (training == null)
+                {
+                    return;
+                }
+                if (user.id == training.coachId)
                 {
                     mode = TrainingDetailsMode.Edit;
                 }
             }
-            Debug.WriteLine("{0}:{1}, mode {2}", cell.Row, cell.Column, mode);
-            TrainingDetailsForm details = new TrainingDetailsForm(user, training, mode);
+            Debug.WriteLine("{0}:{1}, mode {2}, coach {3}", cell.Row, cell.Column, mode, training.coachId);
+            TrainingDetailsForm details = new TrainingDetailsForm(user, users, training, mode);
             DialogResult result = details.ShowDialog();
+            trainingsMutex.WaitOne();
             if (result == DialogResult.OK)
             {
-                localTrainings.Add(training.date, training);
+                training.name = details.nameEdit.Text;
+                localTrainings.Add(training);
                 AddTrainingToCell(btn, training);
             }
             else if (result == DialogResult.Ignore)
             {
-                localTrainings.Remove(training.date);
+                training.syncState = SyncState.Deleted;
+                if (training.id == -1)
+                {
+                    localTrainings.Remove(training);
+                }
                 ClearCell(btn);
             }
+            else if (result == DialogResult.Yes)
+            {
+                training.traineesId.Remove(user.id);
+                training.syncState = SyncState.Updated;
+            }
+            else if (result == DialogResult.No)
+            {
+                training.traineesId.Add(user.id);
+                training.syncState = SyncState.Updated;
+            }
+            trainingsMutex.Release();
         }
 
         private void nextWeekBtn_Click(object sender, EventArgs e)
@@ -179,14 +252,39 @@ namespace TrainingScheduler
 
         private void AddTrainingToCell(Button cell, Training training)
         {
+            User coach = users.Find(u => u.id == training.coachId);
+            if (coach == null)
+            {
+                return;
+            }
             cell.BackColor = Color.LightGreen;
-            cell.Text = training.name + "\n" + training.coach.firstName + " " + training.coach.secondName;
+            cell.Text = training.name + "\n" + coach.firstName + " " + coach.secondName;
         }
 
         private void ClearCell(Button cell)
         {
             cell.BackColor = SystemColors.Window;
             cell.Text = "";
+        }
+
+        private async void CalendarForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            shouldRunUsersUpdateThread = false;
+            shouldRunTrainingsUpdateThread = false;
+            usersUpdateThread.Join();
+            trainingsUpdateThread.Join();
+            await trainingsDatabase.SyncTrainings(user, localTrainings, trainingsMutex);
+        }
+
+        private async void CalendarForm_Shown(object sender, EventArgs e)
+        {
+            Hide();
+            LoadingForm loading = new LoadingForm();
+            loading.Show();
+            await Init();
+            UpdateCalendar();
+            loading.Close();
+            Show();
         }
     }
 }

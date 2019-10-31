@@ -36,6 +36,7 @@
             this.traineesList = new System.Windows.Forms.ListBox();
             this.traineesLabel = new System.Windows.Forms.Label();
             this.okBtn = new System.Windows.Forms.Button();
+            this.subBtn = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // addTrainingBtn
@@ -111,11 +112,22 @@
             this.okBtn.UseVisualStyleBackColor = true;
             this.okBtn.Click += new System.EventHandler(this.okBtn_Click);
             // 
+            // subBtn
+            // 
+            this.subBtn.Location = new System.Drawing.Point(128, 304);
+            this.subBtn.Name = "subBtn";
+            this.subBtn.Size = new System.Drawing.Size(75, 31);
+            this.subBtn.TabIndex = 8;
+            this.subBtn.Text = "Записаться";
+            this.subBtn.UseVisualStyleBackColor = true;
+            this.subBtn.Click += new System.EventHandler(this.subBtn_Click);
+            // 
             // TrainingDetailsForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(337, 356);
+            this.Controls.Add(this.subBtn);
             this.Controls.Add(this.okBtn);
             this.Controls.Add(this.traineesLabel);
             this.Controls.Add(this.traineesList);
@@ -139,11 +151,12 @@
 
         private System.Windows.Forms.Button addTrainingBtn;
         private System.Windows.Forms.Label nameLabel;
-        private System.Windows.Forms.TextBox nameEdit;
         private System.Windows.Forms.TextBox coachEdit;
         private System.Windows.Forms.Label coachLabel;
         private System.Windows.Forms.ListBox traineesList;
         private System.Windows.Forms.Label traineesLabel;
         private System.Windows.Forms.Button okBtn;
+        private System.Windows.Forms.Button subBtn;
+        public System.Windows.Forms.TextBox nameEdit;
     }
 }

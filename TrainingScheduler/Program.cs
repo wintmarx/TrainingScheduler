@@ -15,17 +15,11 @@ namespace TrainingScheduler
             Application.SetCompatibleTextRenderingDefault(false);
 
             User user = new User();
-            user.isCoach = true;
-            user.firstName = "Test";
-            user.secondName = "Second";
-            user.id = 0;
-            /*LoginForm loginForm = new LoginForm(user);
-            
+            LoginForm loginForm = new LoginForm(user);       
             if (loginForm.ShowDialog() == DialogResult.OK)
-            {*/
+            {      
                 Application.Run(new CalendarForm(user));
-            //}
-            
+            }
         }
     }
 }

@@ -20,33 +20,67 @@ namespace TrainingScheduler
             selfLocked = false;
         }
 
-        public async Task ExecuteNonQueryAsync(SQLiteCommand command)
+        public async Task ExecuteNonQueryAsyncAtomic(SQLiteCommand command)
         {
-            Debug.WriteLine("ExecuteNonQueryAsync");
+            Debug.WriteLine("ExecuteNonQueryAsyncAtomic");
             await FetchDb();
+            ExecuteNonQuery(command);
+            await CommitDb();
+        }
+
+        public void ExecuteNonQuery(SQLiteCommand command)
+        {
+            if (!selfLocked)
+            {
+                return;
+            }
+            Debug.WriteLine("ExecuteNonQueryAsync");
             command.Connection = db;
             command.ExecuteNonQuery();
             Debug.WriteLine("ExecuteNonQueryAsync query executed");
             command.Connection = null;
-            await CommitDb();
         }
 
-        public async Task<object> ExecuteScalarAsync(SQLiteCommand command)
+        public async Task<object> ExecuteScalarAsyncAtomic(SQLiteCommand command)
         {
-            Debug.WriteLine("ExecuteScalarAsync");
+
+            Debug.WriteLine("ExecuteScalarAsyncAtomic");
             await FetchDb();
-            command.Connection = db;
-            object ret = command.ExecuteScalar();
-            Debug.WriteLine("ExecuteScalarAsync executed");
-            command.Connection = null;
+            object ret = ExecuteScalar(command);
             await CommitDb();
             return ret;
         }
 
-        public async Task<List<object[]>> ExecuteReaderAsync(SQLiteCommand command)
+        public object ExecuteScalar(SQLiteCommand command)
         {
-            Debug.WriteLine("ExecuteReaderAsync");
+            if (!selfLocked)
+            {
+                return null;
+            }
+            Debug.WriteLine("ExecuteScalarAsync");
+            command.Connection = db;
+            object ret = command.ExecuteScalar();
+            Debug.WriteLine("ExecuteScalarAsync executed");
+            command.Connection = null;
+            return ret;
+        }
+
+        public async Task<List<object[]>> ExecuteReaderAsyncAtomic(SQLiteCommand command)
+        {
+            Debug.WriteLine("ExecuteReaderAsyncAtomic");
             await FetchDb();
+            List<object[]> ret = ExecuteReader(command);
+            await CommitDb();
+            return ret;
+        }
+
+        public List<object[]> ExecuteReader(SQLiteCommand command)
+        {
+            if (!selfLocked)
+            {
+                return null;
+            }
+            Debug.WriteLine("ExecuteReaderAsync");
             List<object[]> ret = new List<object[]>();
             command.Connection = db;
             SQLiteDataReader reader = command.ExecuteReader();
@@ -63,11 +97,10 @@ namespace TrainingScheduler
             reader.Close();
             Debug.WriteLine("ExecuteReaderAsync reader closed");
             command.Connection = null;
-            await CommitDb();
             return ret;
         }
 
-        private async Task<bool> FetchDb()
+        public async Task<bool> FetchDb()
         {
             Debug.WriteLine("FetchDb");
             if (selfLocked)
@@ -116,7 +149,7 @@ namespace TrainingScheduler
             return true;
         }
 
-        private async Task<bool> CommitDb()
+        public async Task<bool> CommitDb()
         {
             Debug.WriteLine("CommitDb");
             if (!selfLocked)

@@ -124,6 +124,8 @@
             this.ShowIcon = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Training Scheduler";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.CalendarForm_FormClosing);
+            this.Shown += new System.EventHandler(this.CalendarForm_Shown);
             this.monthSelector.ResumeLayout(false);
             this.monthSelector.PerformLayout();
             this.ResumeLayout(false);

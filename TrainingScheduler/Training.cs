@@ -6,13 +6,20 @@ using System.Threading.Tasks;
 
 namespace TrainingScheduler
 {
+    public enum SyncState
+    {
+        Synced,
+        Unsynced,
+        Updated,
+        Deleted
+    }
     public class Training
     {
-        public long id;
-        public User coach;
+        public long id = -1;
+        public long coachId;
         public string name;
-        public List<User> trainees = new List<User>();
+        public List<long> traineesId = new List<long>();
         public DateTime date;
-        public bool isDeleted = false;
+        public SyncState syncState = SyncState.Unsynced;
     }
 }
