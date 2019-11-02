@@ -34,11 +34,11 @@
             this.surnameBox = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
             this.coachCodeBox = new System.Windows.Forms.TextBox();
-            this.signupBtn = new System.Windows.Forms.Button();
-            this.pswdBox = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
             this.loginBox = new System.Windows.Forms.TextBox();
             this.label5 = new System.Windows.Forms.Label();
+            this.pswdBox = new System.Windows.Forms.TextBox();
+            this.signupBtn = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // label1
@@ -56,7 +56,6 @@
             this.nameBox.Name = "nameBox";
             this.nameBox.Size = new System.Drawing.Size(238, 20);
             this.nameBox.TabIndex = 1;
-            this.nameBox.Text = "Test";
             // 
             // label2
             // 
@@ -73,7 +72,6 @@
             this.surnameBox.Name = "surnameBox";
             this.surnameBox.Size = new System.Drawing.Size(238, 20);
             this.surnameBox.TabIndex = 3;
-            this.surnameBox.Text = "SecondName";
             // 
             // label3
             // 
@@ -90,17 +88,31 @@
             this.coachCodeBox.Name = "coachCodeBox";
             this.coachCodeBox.Size = new System.Drawing.Size(238, 20);
             this.coachCodeBox.TabIndex = 5;
-            this.coachCodeBox.Text = "iamcoach";
             // 
-            // signupBtn
+            // label4
             // 
-            this.signupBtn.Location = new System.Drawing.Point(98, 227);
-            this.signupBtn.Name = "signupBtn";
-            this.signupBtn.Size = new System.Drawing.Size(75, 23);
-            this.signupBtn.TabIndex = 6;
-            this.signupBtn.Text = "Sign-up";
-            this.signupBtn.UseVisualStyleBackColor = true;
-            this.signupBtn.Click += new System.EventHandler(this.signupBtn_ClickAsync);
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(212, 128);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(38, 13);
+            this.label4.TabIndex = 6;
+            this.label4.Text = "Логин";
+            // 
+            // loginBox
+            // 
+            this.loginBox.Location = new System.Drawing.Point(12, 144);
+            this.loginBox.Name = "loginBox";
+            this.loginBox.Size = new System.Drawing.Size(238, 20);
+            this.loginBox.TabIndex = 7;
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(205, 167);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(45, 13);
+            this.label5.TabIndex = 8;
+            this.label5.Text = "Пароль";
             // 
             // pswdBox
             // 
@@ -108,45 +120,28 @@
             this.pswdBox.Name = "pswdBox";
             this.pswdBox.PasswordChar = '*';
             this.pswdBox.Size = new System.Drawing.Size(238, 20);
-            this.pswdBox.TabIndex = 8;
-            this.pswdBox.Text = "123";
+            this.pswdBox.TabIndex = 9;
             // 
-            // label4
+            // signupBtn
             // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(205, 167);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(45, 13);
-            this.label4.TabIndex = 7;
-            this.label4.Text = "Пароль";
-            // 
-            // loginBox
-            // 
-            this.loginBox.Location = new System.Drawing.Point(12, 144);
-            this.loginBox.Name = "loginBox";
-            this.loginBox.Size = new System.Drawing.Size(238, 20);
-            this.loginBox.TabIndex = 10;
-            this.loginBox.Text = "login";
-            // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(212, 128);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(38, 13);
-            this.label5.TabIndex = 9;
-            this.label5.Text = "Логин";
+            this.signupBtn.Location = new System.Drawing.Point(98, 227);
+            this.signupBtn.Name = "signupBtn";
+            this.signupBtn.Size = new System.Drawing.Size(75, 23);
+            this.signupBtn.TabIndex = 10;
+            this.signupBtn.Text = "Sign-up";
+            this.signupBtn.UseVisualStyleBackColor = true;
+            this.signupBtn.Click += new System.EventHandler(this.signupBtn_ClickAsync);
             // 
             // SignupForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(262, 262);
-            this.Controls.Add(this.loginBox);
-            this.Controls.Add(this.label5);
-            this.Controls.Add(this.pswdBox);
-            this.Controls.Add(this.label4);
             this.Controls.Add(this.signupBtn);
+            this.Controls.Add(this.pswdBox);
+            this.Controls.Add(this.label5);
+            this.Controls.Add(this.loginBox);
+            this.Controls.Add(this.label4);
             this.Controls.Add(this.coachCodeBox);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.surnameBox);
@@ -157,7 +152,7 @@
             this.Name = "SignupForm";
             this.ShowIcon = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "SIgnupForm";
+            this.Text = "Signup";
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -171,10 +166,10 @@
         private System.Windows.Forms.TextBox surnameBox;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.TextBox coachCodeBox;
-        private System.Windows.Forms.Button signupBtn;
-        private System.Windows.Forms.TextBox pswdBox;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.TextBox loginBox;
         private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.TextBox pswdBox;
+        private System.Windows.Forms.Button signupBtn;
     }
 }
