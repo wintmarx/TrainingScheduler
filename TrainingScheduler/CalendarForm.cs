@@ -194,6 +194,11 @@ namespace TrainingScheduler
             Debug.WriteLine("{0}:{1}, mode {2}, coach {3}", cell.Row, cell.Column, mode, training.coachId);
             TrainingDetailsForm details = new TrainingDetailsForm(user, users, training, mode);
             DialogResult result = details.ShowDialog();
+            if (result == DialogResult.Abort)
+            {
+                return;
+            }
+            Cursor = Cursors.WaitCursor;
             trainingsMutex.WaitOne();
             if (result == DialogResult.OK)
             {
@@ -221,6 +226,7 @@ namespace TrainingScheduler
                 training.syncState = SyncState.Updated;
             }
             trainingsMutex.Release();
+            Cursor = Cursors.Default;
         }
 
         private void nextWeekBtn_Click(object sender, EventArgs e)

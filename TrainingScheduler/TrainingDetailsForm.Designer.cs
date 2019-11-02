@@ -142,6 +142,7 @@
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Информация о тренировке";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.TrainingDetailsForm_FormClosing);
             this.ResumeLayout(false);
             this.PerformLayout();
 

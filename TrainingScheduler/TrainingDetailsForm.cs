@@ -22,6 +22,7 @@ namespace TrainingScheduler
         Training training;
         TrainingDetailsMode mode;
         bool subscribed = false;
+        bool userClose = true;
         public TrainingDetailsForm(User user, List<User> users, Training training, TrainingDetailsMode mode)
         {
             InitializeComponent();
@@ -70,12 +71,14 @@ namespace TrainingScheduler
                 return;
             }
             DialogResult = DialogResult.OK;
+            userClose = false;
             Close();
         }
 
         private void okBtn_Click(object sender, EventArgs e)
         {
             DialogResult = DialogResult.Ignore;
+            userClose = false;
             Close();
         }
 
@@ -89,7 +92,16 @@ namespace TrainingScheduler
             {
                 DialogResult = DialogResult.No;
             }
+            userClose = false;
             Close();
+        }
+
+        private void TrainingDetailsForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (e.CloseReason == CloseReason.UserClosing && userClose)
+            {
+                DialogResult = DialogResult.Abort;
+            }
         }
     }
 }
