@@ -110,19 +110,22 @@ namespace TrainingScheduler
             if (table.Count <= 0)
             {
                 Debug.WriteLine("No trainings to sync");
+                trainings.Clear();
                 return false;
             }
-
-            trainings.Clear();
+            trainings.RemoveAll(x => table.FindIndex(t => (long)t[0] == x.id) < 0);
             for (int i = 0; i < table.Count; i++)
             {
-                Training t = new Training();
+                int idx = trainings.FindIndex(x => x.id == (long)table[i][0]);
+                Training t = idx >= 0 ? trainings[idx] : new Training();
                 t.id = (long)table[i][0];
                 t.name = (string)table[i][1];
                 t.coachId = (long)table[i][2];
                 t.date = UnixTimestampToDateTime((long)table[i][3]);
-                t.syncState = SyncState.Synced;
+                bool isUserSubLocal = t.traineesId.FindIndex(x => x == user.id) >= 0;
                 int ti = trainees.FindIndex(x => (long)x[0] == t.id);
+                bool isUserSubRemote = false;
+                t.traineesId.Clear();
                 if (ti >= 0)
                 {
                     for (int j = ti; j < trainees.Count; j++)
@@ -132,13 +135,20 @@ namespace TrainingScheduler
                             break;
                         }
                         t.traineesId.Add((long)trainees[j][1]);
+                        if (user.id == (long)trainees[j][1])
+                        {
+                            isUserSubRemote = true;
+                        }
                     }
                 }
-
-                Debug.WriteLine("User fetched {0}, {1}, {2}, {3}", t.id, t.name, t.coachId, t.date.ToString());
-                trainings.Add(t);
+                t.syncState = isUserSubRemote == isUserSubLocal ? SyncState.Synced : SyncState.Updated;
+                Debug.WriteLine("Training fetched {0}, {1}, {2}, {3}", t.id, t.name, t.coachId, t.date.ToString());
+                if (idx < 0)
+                {
+                    trainings.Add(t);
+                }
             }
-
+            Debug.WriteLine("Load trainings");
             mutex.Release();
             return true;
         }
