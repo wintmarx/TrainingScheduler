@@ -53,10 +53,10 @@ namespace TrainingScheduler
                     }
                     break;
             }
-            User coach = users[(int)training.coachId - 1];
+            User coach = users.Find(x => x.id == training.coachId);
             for (int i = 0; i < training.traineesId.Count; i++)
             {
-                User usr = users[(int)training.traineesId[i] - 1];
+                User usr = users.Find(x => x.id == training.traineesId[i]);
                 traineesList.Items.Add(usr.firstName + " " + usr.secondName);
             }
             coachEdit.Text = coach.firstName + " " + coach.secondName;
